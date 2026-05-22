@@ -266,12 +266,13 @@
     background: var(--bg);
     border-bottom: 1px solid var(--border);
     padding: 0 16px;
-    display: flex; align-items: center; gap: 4px;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
     overflow-x: auto; white-space: nowrap;
     -webkit-overflow-scrolling: touch;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
+  [id^="sec-"] { scroll-margin-top: 52px; }
   #quickNav a.nav-pill {
     display: inline-block;
     padding: 10px 14px;
@@ -639,7 +640,7 @@
   <div class="card">
     <div class="card-title">Otimização da instalação: mais painéis vs. bateria</div>
     <p style="color:var(--muted);font-size:.85rem;margin:4px 0 6px;">
-      Payback estimado em função do número de painéis, para 7 configurações de bateria (unidades de 5&nbsp;kWh).
+      Payback estimado em função do número de painéis, para 9 configurações de bateria (unidades de 5&nbsp;kWh).
       O ponto <strong style="color:#f59e0b">◆</strong> é a configuração atual (8 painéis, sem bateria — 4,25 anos).
       <br>Pressupostos: €492/painel&nbsp;·&nbsp;€1.200/bateria 5&nbsp;kWh&nbsp;·&nbsp;220 ciclos/ano&nbsp;·&nbsp;taxa média real da simulação.
     </p>
@@ -2522,6 +2523,8 @@ buildSolarDrilldown();
     { batt: 4, label: '4 baterias (5 kWh)',  color: '#8b5cf6', dash: [3, 3]  },
     { batt: 5, label: '5 baterias (5 kWh)',  color: '#ec4899', dash: [10, 3] },
     { batt: 6, label: '6 baterias (5 kWh)',  color: '#14b8a6', dash: [4, 2]  },
+    { batt: 7, label: '7 baterias (5 kWh)',  color: '#f97316', dash: [6, 2]  },
+    { batt: 8, label: '8 baterias (5 kWh)',  color: '#64748b', dash: [2, 2]  },
   ];
 
   const datasets = battConfigs.map(cfg => ({
@@ -2580,7 +2583,7 @@ buildSolarDrilldown();
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  new Chart(ctx, {
+  window._paybackChart = new Chart(ctx, {
     type: 'line',
     plugins: [greenZonePlugin],
     data: { labels: panels, datasets },
@@ -2619,7 +2622,7 @@ buildSolarDrilldown();
         },
         y: {
           title: { display: true, text: 'Payback (anos)', color: '#64748b', font: { size: 12 } },
-          min: 2, max: 16,
+          min: 2, max: 20,
           grid:  { color: 'rgba(100,116,139,0.12)' },
           ticks: { color: '#64748b', callback: v => v + ' a' }
         }
@@ -2665,6 +2668,8 @@ buildSolarDrilldown();
     { batt: 4, label: '4 baterias (5 kWh)',  color: '#8b5cf6', dash: [3, 3]  },
     { batt: 5, label: '5 baterias (5 kWh)',  color: '#ec4899', dash: [10, 3] },
     { batt: 6, label: '6 baterias (5 kWh)',  color: '#14b8a6', dash: [4, 2]  },
+    { batt: 7, label: '7 baterias (5 kWh)',  color: '#f97316', dash: [6, 2]  },
+    { batt: 8, label: '8 baterias (5 kWh)',  color: '#64748b', dash: [2, 2]  },
   ];
 
   const datasets = battConfigs.map(cfg => ({
@@ -2725,7 +2730,7 @@ buildSolarDrilldown();
   const canvas = document.getElementById('savings20Chart');
   if (!canvas) return;
 
-  new Chart(canvas.getContext('2d'), {
+  window._savings20Chart = new Chart(canvas.getContext('2d'), {
     type: 'line',
     plugins: [vertLinePlugin],
     data: { labels: panels, datasets },
@@ -2788,6 +2793,35 @@ buildSolarDrilldown();
   sections.forEach(s => obs.observe(s));
 })();
 
+
+
+// ── Cross-chart hover sync ────────────────────────────────────────────────
+(function syncCharts() {
+  function link(src, tgt) {
+    src.canvas.addEventListener('mousemove', function(e) {
+      const pts = src.getElementsAtEventForMode(e, 'index', {intersect: false}, false);
+      if (!pts.length) return;
+      const idx = pts[0].index;
+      tgt.tooltip.setActiveElements(
+        tgt.data.datasets.map((_, di) => ({datasetIndex: di, index: idx})),
+        {x: 0, y: 0}
+      );
+      tgt.update('none');
+    });
+    src.canvas.addEventListener('mouseleave', function() {
+      tgt.tooltip.setActiveElements([], {x: 0, y: 0});
+      tgt.update('none');
+    });
+  }
+  // Wait for both charts to be created
+  const ready = setInterval(function() {
+    if (window._paybackChart && window._savings20Chart) {
+      clearInterval(ready);
+      link(window._paybackChart,   window._savings20Chart);
+      link(window._savings20Chart, window._paybackChart);
+    }
+  }, 100);
+})();
 </script>
 
 </body>
