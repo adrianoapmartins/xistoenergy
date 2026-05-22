@@ -593,6 +593,31 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════
+       PAYBACK VS NÚMERO DE PAINÉIS
+       ═══════════════════════════════════════════════════════ -->
+  <div class="section-title" style="margin-top:32px;">☀️ Nº de Painéis vs. Tempo de Payback</div>
+  <div class="card">
+    <div class="card-title">Otimização da instalação: mais painéis vs. bateria</div>
+    <p style="color:var(--muted);font-size:.85rem;margin:4px 0 6px;">
+      Payback estimado em função do número de painéis, para 7 configurações de bateria (unidades de 5&nbsp;kWh).
+      O ponto <strong style="color:#f59e0b">◆</strong> é a configuração atual (8 painéis, sem bateria — 4,25 anos).
+      <br>Pressupostos: €492/painel&nbsp;·&nbsp;€1.200/bateria 5&nbsp;kWh&nbsp;·&nbsp;220 ciclos/ano&nbsp;·&nbsp;taxa média real da simulação.
+    </p>
+    <div style="position:relative;height:420px;margin-top:10px;">
+      <canvas id="paybackPanelsChart"></canvas>
+    </div>
+    <div id="paybackPanelsLegend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:.82rem;"></div>
+    <div style="margin-top:14px;padding:12px 16px;background:var(--bg-alt,#f8fafc);border-radius:10px;border:1px solid var(--border);font-size:.82rem;color:var(--muted);">
+      <strong style="color:var(--text)">Como ler:</strong>
+      Quanto mais baixa a linha, mais rápido o retorno do investimento.
+      Adicionar bateria a poucos painéis <em>aumenta</em> o payback (pouco excedente para armazenar).
+      O benefício da bateria cresce com mais painéis, onde há mais excedente disponível.
+      A zona verde indica payback &lt;&nbsp;5 anos.
+    </div>
+  </div>
+
+
 </div>
 
 <footer>
@@ -2393,6 +2418,158 @@ function buildPaybackTable(savFlat, savFam) {
 
 renderSolarSimKPIs();
 buildSolarDrilldown();
+
+
+// ═══════════════════════════════════════════════════════════════════
+// GRÁFICO: NÚMERO DE PAINÉIS vs. PAYBACK (por config. de bateria)
+// ═══════════════════════════════════════════════════════════════════
+
+(function buildPaybackPanelsChart() {
+  // Parâmetros do modelo
+  const PANEL_PROD  = SOLAR_YEARLY / 8;   // kWh/ano por painel ≈ 737,7
+  const PANEL_COST  = SOLAR_INVEST  / 8;  // €/painel ≈ 492
+  const BATT_COST   = 1200;               // €/bateria 5 kWh
+  const BATT_KWH    = 5;
+  const BATT_CYCLES = 220;               // ciclos/ano
+
+  // Taxa média real da simulação: saving_flat / self_kwh
+  const totSelf    = SOLAR_SIM.reduce((s, r) => s + r.self_kwh,    0);
+  const totSavFlat = SOLAR_SIM.reduce((s, r) => s + r.saving_flat, 0);
+  const AVG_RATE   = totSavFlat / totSelf;  // ≈ 0,2318 €/kWh
+
+  // Taxa de autoconsumo sem bateria (power-law calibrado ao caso de 8 painéis)
+  function scRate(N) {
+    return Math.min(0.95, 0.676 * Math.pow(8 / N, 0.55));
+  }
+
+  // Payback para N painéis e B baterias
+  function payback(N, B) {
+    const prod      = PANEL_PROD * N;
+    const sc0       = scRate(N);
+    const excess    = prod * (1 - sc0);
+    const battBoost = Math.min(excess, B * BATT_KWH * BATT_CYCLES);
+    const selfUsed  = prod * sc0 + battBoost;
+    const annSav    = selfUsed * AVG_RATE;
+    const cost      = PANEL_COST * N + BATT_COST * B;
+    return cost / annSav;
+  }
+
+  const panels = Array.from({ length: 17 }, (_, i) => i + 4); // 4 … 20
+
+  const battConfigs = [
+    { batt: 0, label: 'Sem bateria',         color: '#6366f1', dash: []      },
+    { batt: 1, label: '1 bateria (5 kWh)',   color: '#10b981', dash: []      },
+    { batt: 2, label: '2 baterias (5 kWh)',  color: '#f59e0b', dash: [5, 3]  },
+    { batt: 3, label: '3 baterias (5 kWh)',  color: '#ef4444', dash: [8, 4]  },
+    { batt: 4, label: '4 baterias (5 kWh)',  color: '#8b5cf6', dash: [3, 3]  },
+    { batt: 5, label: '5 baterias (5 kWh)',  color: '#ec4899', dash: [10, 3] },
+    { batt: 6, label: '6 baterias (5 kWh)',  color: '#14b8a6', dash: [4, 2]  },
+  ];
+
+  const datasets = battConfigs.map(cfg => ({
+    label: cfg.label,
+    data:  panels.map(N => +payback(N, cfg.batt).toFixed(2)),
+    borderColor: cfg.color,
+    backgroundColor: cfg.color + '18',
+    borderWidth: 2.5,
+    borderDash: cfg.dash,
+    pointRadius: panels.map(N => (N === 8 && cfg.batt === 0) ? 9 : 3),
+    pointStyle:  panels.map(N => (N === 8 && cfg.batt === 0) ? 'rectRot' : 'circle'),
+    pointBackgroundColor: panels.map(N => (N === 8 && cfg.batt === 0) ? '#f59e0b' : cfg.color),
+    pointBorderColor:     panels.map(N => (N === 8 && cfg.batt === 0) ? '#92400e' : cfg.color),
+    pointBorderWidth:     panels.map(N => (N === 8 && cfg.batt === 0) ? 2 : 1),
+    tension: 0.35,
+    fill: false,
+  }));
+
+  // Legenda manual
+  const legendEl = document.getElementById('paybackPanelsLegend');
+  if (legendEl) {
+    battConfigs.forEach(cfg => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);';
+      item.innerHTML = '<span style="display:inline-block;width:24px;height:3px;background:' + cfg.color + ';border-radius:2px;flex-shrink:0;"></span> ' + cfg.label;
+      legendEl.appendChild(item);
+    });
+  }
+
+  // Plugin: zona verde (payback < 5 anos)
+  const greenZonePlugin = {
+    id: 'greenZone',
+    beforeDraw(chart) {
+      const {ctx: c, chartArea, scales} = chart;
+      if (!chartArea || !scales.y) return;
+      const {top, left, right} = chartArea;
+      const y5 = scales.y.getPixelForValue(5);
+      if (y5 > top) {
+        c.save();
+        c.fillStyle = 'rgba(16,185,129,0.07)';
+        c.fillRect(left, top, right - left, y5 - top);
+        c.strokeStyle = 'rgba(16,185,129,0.4)';
+        c.setLineDash([6, 3]);
+        c.lineWidth = 1.5;
+        c.beginPath(); c.moveTo(left, y5); c.lineTo(right, y5); c.stroke();
+        c.setLineDash([]);
+        c.fillStyle = 'rgba(16,185,129,0.75)';
+        c.font = '11px system-ui,sans-serif';
+        c.fillText('< 5 anos  ✓', right - 72, y5 - 6);
+        c.restore();
+      }
+    }
+  };
+
+  const canvas = document.getElementById('paybackPanelsChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  new Chart(ctx, {
+    type: 'line',
+    plugins: [greenZonePlugin],
+    data: { labels: panels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.92)',
+          titleColor: '#f8fafc',
+          bodyColor: '#cbd5e1',
+          padding: 12,
+          callbacks: {
+            title: items => items[0].label + ' painéis',
+            label: item => {
+              const cfg  = battConfigs[item.datasetIndex];
+              const pb   = item.parsed.y;
+              const N    = panels[item.dataIndex];
+              const cost = (PANEL_COST * N + BATT_COST * cfg.batt).toLocaleString('pt-PT');
+              return ' ' + cfg.label + ': ' + pb.toFixed(1) + ' anos  |  €' + cost + ' investimento';
+            },
+            afterBody: items => {
+              const N = panels[items[0].dataIndex];
+              return ['', '⚡ Produção anual: ~' + Math.round(PANEL_PROD * N).toLocaleString('pt-PT') + ' kWh'];
+            }
+          }
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Número de painéis (0,48 kWp cada)', color: '#64748b', font: { size: 12 } },
+          grid:  { color: 'rgba(100,116,139,0.12)' },
+          ticks: { color: '#64748b' }
+        },
+        y: {
+          title: { display: true, text: 'Payback (anos)', color: '#64748b', font: { size: 12 } },
+          min: 2, max: 16,
+          grid:  { color: 'rgba(100,116,139,0.12)' },
+          ticks: { color: '#64748b', callback: v => v + ' a' }
+        }
+      }
+    }
+  });
+})();
 </script>
+
 </body>
 </html>

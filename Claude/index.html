@@ -593,7 +593,6 @@
     </div>
   </div>
 
-</div>
   <!-- ═══════════════════════════════════════════════════════
        PAYBACK VS NÚMERO DE PAINÉIS
        ═══════════════════════════════════════════════════════ -->
@@ -601,7 +600,7 @@
   <div class="card">
     <div class="card-title">Otimização da instalação: mais painéis vs. bateria</div>
     <p style="color:var(--muted);font-size:.85rem;margin:4px 0 6px;">
-      Payback estimado em função do número de painéis, para 5 configurações de bateria (unidades de 5&nbsp;kWh).
+      Payback estimado em função do número de painéis, para 7 configurações de bateria (unidades de 5&nbsp;kWh).
       O ponto <strong style="color:#f59e0b">◆</strong> é a configuração atual (8 painéis, sem bateria — 4,25 anos).
       <br>Pressupostos: €492/painel&nbsp;·&nbsp;€1.200/bateria 5&nbsp;kWh&nbsp;·&nbsp;220 ciclos/ano&nbsp;·&nbsp;taxa média real da simulação.
     </p>
@@ -617,6 +616,9 @@
       A zona verde indica payback &lt;&nbsp;5 anos.
     </div>
   </div>
+
+
+</div>
 
 <footer>
   Dados: OMIE Mercado Diário Portugal (Abr–Nov 2025) · Consumo: Legrand Gateway Gamil ·
@@ -2457,9 +2459,11 @@ buildSolarDrilldown();
   const battConfigs = [
     { batt: 0, label: 'Sem bateria',         color: '#6366f1', dash: []      },
     { batt: 1, label: '1 bateria (5 kWh)',   color: '#10b981', dash: []      },
-    { batt: 2, label: '2 baterias (10 kWh)', color: '#f59e0b', dash: [5, 3]  },
-    { batt: 3, label: '3 baterias (15 kWh)', color: '#ef4444', dash: [8, 4]  },
-    { batt: 4, label: '4 baterias (20 kWh)', color: '#8b5cf6', dash: [3, 3]  },
+    { batt: 2, label: '2 baterias (5 kWh)',  color: '#f59e0b', dash: [5, 3]  },
+    { batt: 3, label: '3 baterias (5 kWh)',  color: '#ef4444', dash: [8, 4]  },
+    { batt: 4, label: '4 baterias (5 kWh)',  color: '#8b5cf6', dash: [3, 3]  },
+    { batt: 5, label: '5 baterias (5 kWh)',  color: '#ec4899', dash: [10, 3] },
+    { batt: 6, label: '6 baterias (5 kWh)',  color: '#14b8a6', dash: [4, 2]  },
   ];
 
   const datasets = battConfigs.map(cfg => ({
@@ -2557,7 +2561,7 @@ buildSolarDrilldown();
         },
         y: {
           title: { display: true, text: 'Payback (anos)', color: '#64748b', font: { size: 12 } },
-          min: 2, max: 12,
+          min: 2, max: 16,
           grid:  { color: 'rgba(100,116,139,0.12)' },
           ticks: { color: '#64748b', callback: v => v + ' a' }
         }

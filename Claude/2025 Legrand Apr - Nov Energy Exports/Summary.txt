@@ -1,0 +1,9 @@
+O que paguei por mês foi
+- Abril: 901 kWh, €218.96
+- Maio: 730 kWh, €177.50
+- Junho: 460 kWh, €111.82
+- Julho: 816 kWh, €198.36
+- Agosto: 644 kWh, €164.18
+- Setembro: 489 kWh, €124.74
+- Outubro: 616 kWh, €157.29
+- Novembro: 1341 kWh, €342.07
