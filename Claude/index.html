@@ -259,11 +259,42 @@
   .vf-hr-tot { min-height: 30px; }
   .vf-tot-cell { min-height: 38px; }
 
+
+  /* ── Quick-access nav bar ───────────────────────────────────────── */
+  #quickNav {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    display: flex; align-items: center; gap: 4px;
+    overflow-x: auto; white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  #quickNav a.nav-pill {
+    display: inline-block;
+    padding: 10px 14px;
+    font-size: .82rem; font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 2.5px solid transparent;
+    transition: color .15s, border-color .15s;
+    flex-shrink: 0;
+  }
+  #quickNav a.nav-pill:hover  { color: var(--text); }
+  #quickNav a.nav-pill.active { color: var(--accent, #6366f1); border-bottom-color: var(--accent, #6366f1); }
+  /* ── Section group labels ───────────────────────────────────────── */
+  .section-group {
+    margin-top: 32px;
+    padding-top: 8px;
+  }
+
 </style>
 </head>
 <body>
 
-<div class="hero">
+<div class="hero" id="sec-resumo">
   <h1>💡 O que pagaste vs. o que poderias ter pago</h1>
   <p>Consumo doméstico em Gamil · Abril 2025 a Março 2026</p>
   <div class="hero-cards">
@@ -314,9 +345,17 @@
   </div>
 </div>
 
+<nav id="quickNav">
+  <a href="#sec-resumo"     class="nav-pill">📊 Resumo</a>
+  <a href="#sec-tarifarios" class="nav-pill">💶 Tarifários</a>
+  <a href="#sec-solar"      class="nav-pill">☀️ Solar</a>
+  <a href="#sec-analise"    class="nav-pill">🔍 Análise</a>
+  <a href="#sec-otimizacao" class="nav-pill">🔋 Otimização</a>
+</nav>
+
 <div class="container">
 
-  <div class="tariff-pills">
+  <div class="tariff-pills" id="sec-tarifarios">
     <div class="pill actual"><span class="pill-dot"></span>Tarifário fixo actual (17,5–25,5 ¢/kWh)</div>
     <div class="pill fam"><span class="pill-dot"></span>Ibelectra Família Simples</div>
     <div class="pill bihor"><span class="pill-dot"></span>Ibelectra Família Bi-horário Diário</div>
@@ -387,7 +426,7 @@
   </div>
 
   <!-- Solar section -->
-  <div class="section-title">☀️ Sistema Solar Fotovoltaico — SunX 8 Kit AIKO + Enphase 3840 W</div>
+  <div class="section-title" id="sec-solar">☀️ Sistema Solar Fotovoltaico — SunX 8 Kit AIKO + Enphase 3840 W</div>
 
   <div class="solar-summary">
     <div class="solar-kpi">
@@ -442,7 +481,7 @@
   </div>
 
   <!-- Insights -->
-  <div class="section-title">O que os dados dizem</div>
+  <div class="section-title" id="sec-analise">O que os dados dizem</div>
 
   <div class="insights-group-label" style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px;">⚡ Tarifário &amp; consumo</div>
   <div class="insights">
@@ -596,7 +635,7 @@
   <!-- ═══════════════════════════════════════════════════════
        PAYBACK VS NÚMERO DE PAINÉIS
        ═══════════════════════════════════════════════════════ -->
-  <div class="section-title" style="margin-top:32px;">☀️ Nº de Painéis vs. Tempo de Payback</div>
+  <div class="section-title" id="sec-otimizacao" style="margin-top:32px;">☀️ Nº de Painéis vs. Tempo de Payback</div>
   <div class="card">
     <div class="card-title">Otimização da instalação: mais painéis vs. bateria</div>
     <p style="color:var(--muted);font-size:.85rem;margin:4px 0 6px;">
@@ -617,6 +656,25 @@
     </div>
   </div>
 
+  <div class="card" style="margin-top:20px;">
+    <div class="card-title">💰 Poupança líquida a 20 anos — quanto fica no bolso?</div>
+    <p style="color:var(--muted);font-size:.85rem;margin:4px 0 6px;">
+      Poupança total acumulada ao longo de 20 anos, <strong>depois de descontar o investimento inicial e a substituição das baterias ao ano 10</strong>
+      (vida útil ~10 anos). Os painéis têm garantia de 25 anos — o que não se recupera nos primeiros 5 anos multiplica-se nos restantes 15.
+      <br>Pressupostos iguais ao gráfico anterior.
+    </p>
+    <div style="position:relative;height:420px;margin-top:10px;">
+      <canvas id="savings20Chart"></canvas>
+    </div>
+    <div id="savings20Legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:.82rem;"></div>
+    <div style="margin-top:14px;padding:12px 16px;background:var(--bg-alt,#f8fafc);border-radius:10px;border:1px solid var(--border);font-size:.82rem;color:var(--muted);">
+      <strong style="color:var(--text)">Como ler:</strong>
+      Quanto mais alta a linha, mais dinheiro fica no bolso ao fim de 20 anos.
+      Ao contrário do gráfico de payback, aqui vê-se claramente que mais painéis + mais baterias
+      geram muito mais retorno total — mesmo que o tempo de payback seja semelhante.
+      A linha pontilhada vertical assinala os 8 painéis (instalação atual prevista).
+    </div>
+  </div>
 
 </div>
 
@@ -2569,6 +2627,167 @@ buildSolarDrilldown();
     }
   });
 })();
+
+
+// ── Poupança líquida a 20 anos ────────────────────────────────────────────
+(function buildSavings20Chart() {
+  const PANEL_PROD  = SOLAR_YEARLY / 8;
+  const PANEL_COST  = SOLAR_INVEST  / 8;
+  const BATT_COST   = 1200;
+  const BATT_KWH    = 5;
+  const BATT_CYCLES = 220;
+  const YEARS       = 20;
+  const totSelf    = SOLAR_SIM.reduce((s, r) => s + r.self_kwh,    0);
+  const totSavFlat = SOLAR_SIM.reduce((s, r) => s + r.saving_flat, 0);
+  const AVG_RATE   = totSavFlat / totSelf;
+
+  function scRate(N) { return Math.min(0.95, 0.676 * Math.pow(8 / N, 0.55)); }
+
+  function netSavings(N, B) {
+    const prod      = PANEL_PROD * N;
+    const sc0       = scRate(N);
+    const excess    = prod * (1 - sc0);
+    const battBoost = Math.min(excess, B * BATT_KWH * BATT_CYCLES);
+    const annSav    = (prod * sc0 + battBoost) * AVG_RATE;
+    const invest    = PANEL_COST * N + BATT_COST * B;
+    // Baterias substituídas 1× ao ano 10
+    const battReplace = BATT_COST * B;
+    return annSav * YEARS - invest - battReplace;
+  }
+
+  const panels = Array.from({ length: 17 }, (_, i) => i + 4); // 4…20
+
+  const battConfigs = [
+    { batt: 0, label: 'Sem bateria',         color: '#6366f1', dash: []      },
+    { batt: 1, label: '1 bateria (5 kWh)',   color: '#10b981', dash: []      },
+    { batt: 2, label: '2 baterias (5 kWh)',  color: '#f59e0b', dash: [5, 3]  },
+    { batt: 3, label: '3 baterias (5 kWh)',  color: '#ef4444', dash: [8, 4]  },
+    { batt: 4, label: '4 baterias (5 kWh)',  color: '#8b5cf6', dash: [3, 3]  },
+    { batt: 5, label: '5 baterias (5 kWh)',  color: '#ec4899', dash: [10, 3] },
+    { batt: 6, label: '6 baterias (5 kWh)',  color: '#14b8a6', dash: [4, 2]  },
+  ];
+
+  const datasets = battConfigs.map(cfg => ({
+    label: cfg.label,
+    data:  panels.map(N => Math.round(netSavings(N, cfg.batt))),
+    borderColor: cfg.color,
+    backgroundColor: cfg.color + '18',
+    borderWidth: 2.5,
+    borderDash: cfg.dash,
+    pointRadius: panels.map(N => N === 8 ? 6 : 3),
+    pointStyle:  panels.map(N => (N === 8 && cfg.batt === 0) ? 'rectRot' : 'circle'),
+    pointBackgroundColor: panels.map(N => (N === 8 && cfg.batt === 0) ? '#f59e0b' : cfg.color),
+    pointBorderColor:     panels.map(N => (N === 8 && cfg.batt === 0) ? '#92400e' : cfg.color),
+    pointBorderWidth:     panels.map(N => N === 8 ? 2 : 1),
+    tension: 0.35,
+    fill: false,
+  }));
+
+  // Legenda manual
+  const legendEl = document.getElementById('savings20Legend');
+  if (legendEl) {
+    battConfigs.forEach(cfg => {
+      const item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);';
+      item.innerHTML = '<span style="display:inline-block;width:24px;height:3px;background:' + cfg.color + ';border-radius:2px;flex-shrink:0;"></span> ' + cfg.label;
+      legendEl.appendChild(item);
+    });
+  }
+
+  // Plugin: linha vertical a 8 painéis + label
+  const vertLinePlugin = {
+    id: 'vertLine8',
+    afterDraw(chart) {
+      const {ctx: c, chartArea, scales} = chart;
+      if (!chartArea || !scales.x) return;
+      const x8 = scales.x.getPixelForValue(4); // index 4 = 8 panels (panels[4]=8)
+      // Actually panels[4] = 4+4 = 8
+      const idx = panels.indexOf(8);
+      if (idx < 0) return;
+      const xPx = scales.x.getPixelForTick(idx);
+      c.save();
+      c.strokeStyle = 'rgba(245,158,11,0.6)';
+      c.setLineDash([5, 4]);
+      c.lineWidth = 1.5;
+      c.beginPath();
+      c.moveTo(xPx, chartArea.top);
+      c.lineTo(xPx, chartArea.bottom);
+      c.stroke();
+      c.setLineDash([]);
+      c.fillStyle = 'rgba(245,158,11,0.85)';
+      c.font = 'bold 11px system-ui,sans-serif';
+      c.textAlign = 'center';
+      c.fillText('8 painéis', xPx, chartArea.top - 6);
+      c.restore();
+    }
+  };
+
+  const canvas = document.getElementById('savings20Chart');
+  if (!canvas) return;
+
+  new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    plugins: [vertLinePlugin],
+    data: { labels: panels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.92)',
+          titleColor: '#f8fafc',
+          bodyColor: '#cbd5e1',
+          padding: 12,
+          callbacks: {
+            title: items => items[0].label + ' painéis — poupança aos 20 anos',
+            label: item => {
+              const cfg  = battConfigs[item.datasetIndex];
+              const val  = item.parsed.y;
+              const N    = panels[item.dataIndex];
+              const annSav = Math.round((val + PANEL_COST*N + BATT_COST*cfg.batt + BATT_COST*cfg.batt) / YEARS);
+              return ' ' + cfg.label + ': €' + val.toLocaleString('pt-PT') + '  (≈€' + annSav.toLocaleString('pt-PT') + '/ano)';
+            }
+          }
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Número de painéis (0,48 kWp cada)', color: '#64748b', font: { size: 12 } },
+          grid:  { color: 'rgba(100,116,139,0.12)' },
+          ticks: { color: '#64748b' }
+        },
+        y: {
+          title: { display: true, text: 'Poupança líquida a 20 anos (€)', color: '#64748b', font: { size: 12 } },
+          grid:  { color: 'rgba(100,116,139,0.12)' },
+          ticks: {
+            color: '#64748b',
+            callback: v => '€' + v.toLocaleString('pt-PT')
+          }
+        }
+      }
+    }
+  });
+})();
+
+// ── Nav bar active state via IntersectionObserver ─────────────────────────
+(function initNavActive() {
+  const sections = ['sec-resumo','sec-tarifarios','sec-solar','sec-analise','sec-otimizacao']
+    .map(id => document.getElementById(id)).filter(Boolean);
+  const pills = document.querySelectorAll('#quickNav a.nav-pill');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        pills.forEach(p => p.classList.remove('active'));
+        const active = document.querySelector('#quickNav a[href="#' + e.target.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+  sections.forEach(s => obs.observe(s));
+})();
+
 </script>
 
 </body>
