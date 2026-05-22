@@ -637,6 +637,57 @@
        PAYBACK VS NÚMERO DE PAINÉIS
        ═══════════════════════════════════════════════════════ -->
   <div class="section-title" id="sec-otimizacao" style="margin-top:32px;">☀️ Nº de Painéis vs. Tempo de Payback</div>
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-title">🧮 Calculadora de investimento</div>
+    <p style="color:var(--muted);font-size:.85rem;margin:4px 0 12px;">
+      Ajusta os sliders para ver o custo, payback estimado e poupança líquida a 20 anos de qualquer combinação painéis + baterias.
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+      <div>
+        <label style="font-size:.85rem;font-weight:600;color:var(--text)">
+          Número de painéis: <strong id="calcPanelsVal" style="color:var(--accent,#6366f1)">8</strong>
+          <span style="color:var(--muted);font-weight:400"> · <span id="calcKwp">3,84</span> kWp</span>
+        </label>
+        <input type="range" min="4" max="20" value="8" id="sliderPanels"
+               style="width:100%;margin-top:8px;accent-color:#6366f1"
+               oninput="updateCalc()">
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-top:2px"><span>4</span><span>20</span></div>
+      </div>
+      <div>
+        <label style="font-size:.85rem;font-weight:600;color:var(--text)">
+          Baterias de 5 kWh: <strong id="calcBattsVal" style="color:var(--accent,#6366f1)">0</strong>
+          <span style="color:var(--muted);font-weight:400"> · <span id="calcKwh">0</span> kWh</span>
+        </label>
+        <input type="range" min="0" max="8" value="0" id="sliderBatts"
+               style="width:100%;margin-top:8px;accent-color:#6366f1"
+               oninput="updateCalc()">
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-top:2px"><span>0</span><span>8</span></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px;">
+      <div style="background:var(--bg-alt,#f8fafc);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center;">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:4px">Investimento inicial</div>
+        <div id="calcInvest" style="font-size:1.4rem;font-weight:700;color:var(--text)">€3.936</div>
+        <div id="calcInvestBreak" style="font-size:.72rem;color:var(--muted);margin-top:2px">€3.936 painéis · €0 bat.</div>
+      </div>
+      <div style="background:var(--bg-alt,#f8fafc);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center;">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:4px">Poupança anual est.</div>
+        <div id="calcAnnual" style="font-size:1.4rem;font-weight:700;color:#10b981">€926</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">após instalação</div>
+      </div>
+      <div style="background:var(--bg-alt,#f8fafc);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center;">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:4px">Payback estimado</div>
+        <div id="calcPayback" style="font-size:1.4rem;font-weight:700;color:#6366f1">4,3 anos</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">tempo de recuperação</div>
+      </div>
+      <div style="background:var(--bg-alt,#f8fafc);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center;">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:4px">Poupança líquida 20a</div>
+        <div id="calcNet20" style="font-size:1.4rem;font-weight:700;color:#f59e0b">€14.584</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">depois de descontar tudo</div>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-title">Otimização da instalação: mais painéis vs. bateria</div>
     <p style="color:var(--muted);font-size:.85rem;margin:4px 0 6px;">
@@ -2549,7 +2600,10 @@ buildSolarDrilldown();
     battConfigs.forEach(cfg => {
       const item = document.createElement('div');
       item.style.cssText = 'display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);';
-      item.innerHTML = '<span style="display:inline-block;width:24px;height:3px;background:' + cfg.color + ';border-radius:2px;flex-shrink:0;"></span> ' + cfg.label;
+      const battCostStr = cfg.batt > 0
+        ? ' <span style="color:var(--muted);font-size:.75rem;margin-left:2px">· +€' + (cfg.batt * BATT_COST).toLocaleString('pt-PT') + ' bat.</span>'
+        : ' <span style="color:var(--muted);font-size:.75rem;margin-left:2px">· só painéis</span>';
+      item.innerHTML = '<span style="display:inline-block;width:24px;height:3px;background:' + cfg.color + ';border-radius:2px;flex-shrink:0;"></span> ' + cfg.label + battCostStr;
       legendEl.appendChild(item);
     });
   }
@@ -2694,7 +2748,10 @@ buildSolarDrilldown();
     battConfigs.forEach(cfg => {
       const item = document.createElement('div');
       item.style.cssText = 'display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);';
-      item.innerHTML = '<span style="display:inline-block;width:24px;height:3px;background:' + cfg.color + ';border-radius:2px;flex-shrink:0;"></span> ' + cfg.label;
+      const battCostStr = cfg.batt > 0
+        ? ' <span style="color:var(--muted);font-size:.75rem;margin-left:2px">· +€' + (cfg.batt * BATT_COST).toLocaleString('pt-PT') + ' bat.</span>'
+        : ' <span style="color:var(--muted);font-size:.75rem;margin-left:2px">· só painéis</span>';
+      item.innerHTML = '<span style="display:inline-block;width:24px;height:3px;background:' + cfg.color + ';border-radius:2px;flex-shrink:0;"></span> ' + cfg.label + battCostStr;
       legendEl.appendChild(item);
     });
   }
@@ -2822,6 +2879,50 @@ buildSolarDrilldown();
     }
   }, 100);
 })();
+
+// ── Investment calculator ─────────────────────────────────────────────────
+function updateCalc() {
+  const PANEL_PROD  = SOLAR_YEARLY / 8;
+  const PANEL_COST  = SOLAR_INVEST  / 8;
+  const BATT_COST   = 1200;
+  const BATT_KWH    = 5;
+  const BATT_CYCLES = 220;
+  const totSelf    = SOLAR_SIM.reduce((s, r) => s + r.self_kwh,    0);
+  const totSavFlat = SOLAR_SIM.reduce((s, r) => s + r.saving_flat, 0);
+  const AVG_RATE   = totSavFlat / totSelf;
+  function scRate(N) { return Math.min(0.95, 0.676 * Math.pow(8 / N, 0.55)); }
+
+  const N = parseInt(document.getElementById('sliderPanels').value);
+  const B = parseInt(document.getElementById('sliderBatts').value);
+
+  const prod      = PANEL_PROD * N;
+  const sc0       = scRate(N);
+  const excess    = prod * (1 - sc0);
+  const battBoost = Math.min(excess, B * BATT_KWH * BATT_CYCLES);
+  const annSav    = (prod * sc0 + battBoost) * AVG_RATE;
+  const panelCost = PANEL_COST * N;
+  const battCost  = BATT_COST * B;
+  const invest    = panelCost + battCost;
+  const pb        = invest / annSav;
+  const net20     = annSav * 20 - invest - battCost; // battery replacement at year 10
+
+  document.getElementById('calcPanelsVal').textContent  = N;
+  document.getElementById('calcKwp').textContent        = (N * 0.48).toFixed(2).replace('.', ',');
+  document.getElementById('calcBattsVal').textContent   = B;
+  document.getElementById('calcKwh').textContent        = B * BATT_KWH;
+  document.getElementById('calcInvest').textContent     = '€' + Math.round(invest).toLocaleString('pt-PT');
+  document.getElementById('calcInvestBreak').textContent = '€' + Math.round(panelCost).toLocaleString('pt-PT') + ' painéis · €' + Math.round(battCost).toLocaleString('pt-PT') + ' bat.';
+  document.getElementById('calcAnnual').textContent     = '€' + Math.round(annSav).toLocaleString('pt-PT');
+  document.getElementById('calcPayback').textContent    = pb.toFixed(1).replace('.', ',') + ' anos';
+  document.getElementById('calcNet20').textContent      = '€' + Math.round(net20).toLocaleString('pt-PT');
+
+  // Colour payback indicator
+  const pbEl = document.getElementById('calcPayback');
+  pbEl.style.color = pb < 5 ? '#10b981' : pb < 7 ? '#f59e0b' : '#ef4444';
+}
+// init
+document.addEventListener('DOMContentLoaded', updateCalc);
+
 </script>
 
 </body>
