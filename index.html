@@ -727,6 +727,55 @@
       A linha pontilhada vertical assinala os 8 painéis (instalação atual prevista).
     </div>
   </div>
+  <div class="card" style="margin-top:20px;border-left:4px solid #10b981;">
+    <div class="card-title">💡 Conselho: qual é a melhor decisão?</div>
+
+    <p style="color:var(--muted);font-size:.85rem;margin:4px 0 16px;">
+      Baseado nos gráficos acima e no teu consumo real (Abr 2025–Mar 2026).
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+
+      <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:16px;">
+        <div style="font-weight:700;color:#10b981;margin-bottom:8px;">✅ Recomendação: 10 painéis + 2 baterias</div>
+        <table style="width:100%;font-size:.83rem;border-collapse:collapse;">
+          <tr><td style="color:var(--muted);padding:3px 0">Investimento inicial</td><td style="text-align:right;font-weight:600">€7.320</td></tr>
+          <tr><td style="color:var(--muted);padding:3px 0">Poupança anual est.</td><td style="text-align:right;font-weight:600">≈€1.531/ano</td></tr>
+          <tr><td style="color:var(--muted);padding:3px 0">Payback</td><td style="text-align:right;font-weight:600">≈4,8 anos</td></tr>
+          <tr><td style="color:var(--muted);padding:3px 0">Poupança líquida 20a</td><td style="text-align:right;font-weight:600;color:#10b981">≈€20.900</td></tr>
+          <tr style="border-top:1px solid var(--border)"><td style="color:var(--muted);padding:4px 0 0">vs. 8 painéis/0 bat.</td><td style="text-align:right;font-weight:700;color:#10b981">+€6.336 em 20 anos</td></tr>
+        </table>
+        <p style="font-size:.78rem;color:var(--muted);margin:10px 0 0;">
+          O investimento extra de €3.384 face ao plano original rende €6.336 adicionais — quase <strong>2× o dinheiro investido</strong>, com apenas +0,5 anos de payback.
+        </p>
+      </div>
+
+      <div style="background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:16px;">
+        <div style="font-weight:700;color:#6366f1;margin-bottom:8px;">🚀 Opção ambiciosa: 12 painéis + 3 baterias</div>
+        <table style="width:100%;font-size:.83rem;border-collapse:collapse;">
+          <tr><td style="color:var(--muted);padding:3px 0">Investimento inicial</td><td style="text-align:right;font-weight:600">€9.504</td></tr>
+          <tr><td style="color:var(--muted);padding:3px 0">Poupança anual est.</td><td style="text-align:right;font-weight:600">≈€1.875/ano</td></tr>
+          <tr><td style="color:var(--muted);padding:3px 0">Payback</td><td style="text-align:right;font-weight:600">≈5,1 anos</td></tr>
+          <tr><td style="color:var(--muted);padding:3px 0">Poupança líquida 20a</td><td style="text-align:right;font-weight:600;color:#6366f1">≈€24.396</td></tr>
+          <tr style="border-top:1px solid var(--border)"><td style="color:var(--muted);padding:4px 0 0">vs. 8 painéis/0 bat.</td><td style="text-align:right;font-weight:700;color:#6366f1">+€9.832 em 20 anos</td></tr>
+        </table>
+        <p style="font-size:.78rem;color:var(--muted);margin:10px 0 0;">
+          Aqui reside o "sweet spot" que identificaste: o payback é quase igual ao de 0 baterias (5,1 vs 5,3 anos), mas as poupanças totais são <strong>50% superiores</strong>.
+        </p>
+      </div>
+
+    </div>
+
+    <div style="background:var(--bg-alt,#f8fafc);border-radius:10px;border:1px solid var(--border);padding:14px 16px;font-size:.83rem;color:var(--muted);">
+      <strong style="color:var(--text)">Porquê não ir ainda mais longe?</strong>
+      A partir de ~14 painéis + 4 baterias o payback começa a subir acima de 6 anos e as baterias precisam de ser substituídas ao ano 10 (€4.800–€9.600 extra).
+      O retorno por euro investido começa a diminuir — é a lei dos retornos decrescentes.
+      <br><br>
+      <strong style="color:var(--text)">Nota importante:</strong>
+      Estes valores assumem que o padrão de consumo se mantém. Se o consumo aumentar (carro elétrico, bomba de calor…) o benefício das baterias e dos painéis extra será ainda maior.
+    </div>
+  </div>
+
 
 </div>
 
@@ -2600,10 +2649,7 @@ buildSolarDrilldown();
     battConfigs.forEach(cfg => {
       const item = document.createElement('div');
       item.style.cssText = 'display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);';
-      const battCostStr = cfg.batt > 0
-        ? ' <span style="color:var(--muted);font-size:.75rem;margin-left:2px">· +€' + (cfg.batt * BATT_COST).toLocaleString('pt-PT') + ' bat.</span>'
-        : ' <span style="color:var(--muted);font-size:.75rem;margin-left:2px">· só painéis</span>';
-      item.innerHTML = '<span style="display:inline-block;width:24px;height:3px;background:' + cfg.color + ';border-radius:2px;flex-shrink:0;"></span> ' + cfg.label + battCostStr;
+      item.innerHTML = '<span style="display:inline-block;width:24px;height:3px;background:' + cfg.color + ';border-radius:2px;flex-shrink:0;"></span> ' + cfg.label;
       legendEl.appendChild(item);
     });
   }
@@ -2748,10 +2794,7 @@ buildSolarDrilldown();
     battConfigs.forEach(cfg => {
       const item = document.createElement('div');
       item.style.cssText = 'display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);';
-      const battCostStr = cfg.batt > 0
-        ? ' <span style="color:var(--muted);font-size:.75rem;margin-left:2px">· +€' + (cfg.batt * BATT_COST).toLocaleString('pt-PT') + ' bat.</span>'
-        : ' <span style="color:var(--muted);font-size:.75rem;margin-left:2px">· só painéis</span>';
-      item.innerHTML = '<span style="display:inline-block;width:24px;height:3px;background:' + cfg.color + ';border-radius:2px;flex-shrink:0;"></span> ' + cfg.label + battCostStr;
+      item.innerHTML = '<span style="display:inline-block;width:24px;height:3px;background:' + cfg.color + ';border-radius:2px;flex-shrink:0;"></span> ' + cfg.label;
       legendEl.appendChild(item);
     });
   }
@@ -2805,11 +2848,12 @@ buildSolarDrilldown();
           callbacks: {
             title: items => items[0].label + ' painéis — poupança aos 20 anos',
             label: item => {
-              const cfg  = battConfigs[item.datasetIndex];
-              const val  = item.parsed.y;
-              const N    = panels[item.dataIndex];
-              const annSav = Math.round((val + PANEL_COST*N + BATT_COST*cfg.batt + BATT_COST*cfg.batt) / YEARS);
-              return ' ' + cfg.label + ': €' + val.toLocaleString('pt-PT') + '  (≈€' + annSav.toLocaleString('pt-PT') + '/ano)';
+              const cfg    = battConfigs[item.datasetIndex];
+              const val    = item.parsed.y;
+              const N      = panels[item.dataIndex];
+              const invest = PANEL_COST * N + BATT_COST * cfg.batt;
+              const annSav = Math.round((val + invest + BATT_COST * cfg.batt) / YEARS);
+              return ' ' + cfg.label + ': €' + Math.round(val).toLocaleString('pt-PT') + '  |  €' + Math.round(invest).toLocaleString('pt-PT') + ' invest.  |  ≈€' + annSav.toLocaleString('pt-PT') + '/ano';
             }
           }
         },
