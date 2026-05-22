@@ -2483,13 +2483,6 @@ buildSolarDrilldown();
 // GRÁFICO: NÚMERO DE PAINÉIS vs. PAYBACK (por config. de bateria)
 // ═══════════════════════════════════════════════════════════════════
 
-
-// Custom tooltip positioner — pinned to bottom of chart area
-Chart.Tooltip.positioners.chartBottom = function(items, eventPos) {
-  const chart = this.chart;
-  if (!items.length) return false;
-  return { x: eventPos.x, y: chart.chartArea.bottom - 2 };
-};
 (function buildPaybackPanelsChart() {
   // Parâmetros do modelo
   const PANEL_PROD  = SOLAR_YEARLY / 8;   // kWh/ano por painel ≈ 737,7
@@ -2601,7 +2594,6 @@ Chart.Tooltip.positioners.chartBottom = function(items, eventPos) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          position: 'chartBottom',
           backgroundColor: 'rgba(15,23,42,0.92)',
           titleColor: '#f8fafc',
           bodyColor: '#cbd5e1',
@@ -2749,7 +2741,6 @@ Chart.Tooltip.positioners.chartBottom = function(items, eventPos) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          position: 'chartBottom',
           backgroundColor: 'rgba(15,23,42,0.92)',
           titleColor: '#f8fafc',
           bodyColor: '#cbd5e1',
