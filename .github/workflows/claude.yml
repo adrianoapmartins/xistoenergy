@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - uses: adriano/.github/actions/inject-writing-rules@main
+      - uses: adrianoapmartins/.github/actions/inject-writing-rules@main
 
       - uses: anthropics/claude-code-action@v1
         with:
